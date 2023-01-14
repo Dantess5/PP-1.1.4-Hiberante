@@ -9,10 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
+    public UserDaoJDBCImpl() {
+    }
+
     Connection connection = Util.getConnection();
 
+    @Override
     public void createUsersTable() {
-        String sqlCreate = "create table user (id BIGINT PRIMARY KEY AUTO_INCREMENT, name varchar(45), lastname varchar(45), age tinyint(3))";
+        String sqlCreate = "create table if not exists user (id BIGINT PRIMARY KEY AUTO_INCREMENT, name varchar(45), lastname varchar(45), age tinyint(3))";
         try (Statement statement = connection.createStatement()) {
             statement.execute(sqlCreate);
         } catch (SQLException e) {
@@ -20,6 +24,7 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
+    @Override
     public void dropUsersTable() {
         String sqlDrop = "drop table if exists user";
         try (Statement statement = connection.createStatement()) {
@@ -29,6 +34,7 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
+    @Override
     public void saveUser(String name, String lastName, byte age) {
         String INSERT_NEW = "INSERT INTO user (name, lastname, age) VALUES (?, ?, ?)";
 
@@ -43,6 +49,7 @@ public class UserDaoJDBCImpl implements UserDao {
         System.out.println("User с именем – " + name + " добавлен в базу данных ");
     }
 
+    @Override
     public void removeUserById(long id) {
         String DELETE = "DELETE FROM user WHERE id = ?";
 
@@ -54,6 +61,7 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
+    @Override
     public List<User> getAllUsers() {
         String GET_ALL = "SELECT * FROM user";
         List<User> list = new ArrayList<>();
@@ -61,7 +69,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(GET_ALL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
-                list.add(new User(resultSet.getLong(1), resultSet.getString(2), resultSet.getString(3), resultSet.getByte(4)));
+                list.add(new User( resultSet.getString(2), resultSet.getString(3), resultSet.getByte(4)));
             }
 
         } catch (SQLException e) {
@@ -71,6 +79,7 @@ public class UserDaoJDBCImpl implements UserDao {
         return list;
     }
 
+    @Override
     public void cleanUsersTable() {
         try (Statement statement = connection.createStatement()) {
             statement.execute("DELETE FROM user");
